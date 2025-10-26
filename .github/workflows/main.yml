@@ -24,15 +24,13 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           
-      # 3. Docker Login (Log in to your ACR)
+      # 3. Docker Login (Log in to your ACR) - Corrected Syntax for password
       - name: Docker Login to ACR
         uses: docker/login-action@v3
         with:
           registry: ${{ env.AZURE_CONTAINER_REGISTRY }}
-          username: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }} # FIXED SYNTAX
-          password: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }} # Using clientSecret as password for ACR logi
-
-          
+          username: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
+          password: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
 
       # 4. Build and Push Image (Using the commit SHA as the tag)
       - name: Build and Push Image
@@ -49,17 +47,16 @@ jobs:
           resource-group: ${{ env.RESOURCE_GROUP }}
           cluster-name: ${{ env.CLUSTER_NAME }}
           
-      # 6. Deployment: Update the YAML to use the new SHA tag
+      # 6. Deployment: Update the YAML to use the new SHA tag - PATH CORRECTION
       - name: Update Kubernetes Deployment File with new image
         run: |
-          # Use 'sed' to replace the 'v1' tag with the unique commit SHA for the new image
-          sed -i "s|ph3containerregistry.azurecr.io/static-site-app:v1|${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|g" phase3_iac/deployment.yaml
+          # The sed command now uses the deployment.yaml file relative to the root of the repo
+          sed -i "s|ph3containerregistry.azurecr.io/static-site-app:v1|${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|g" deployment.yaml
 
-      # 7. Deployment: Apply the updated manifest
+      # 7. Deployment: Apply the updated manifest - PATH CORRECTION
       - name: Deploy to AKS
-        run: kubectl apply -f phase3_iac/deployment.yaml
-      
-
+        run: kubectl apply -f deployment.yaml
+        
       # 8. Verification: Wait for deployment to stabilize
       - name: Verify Deployment Status
         run: kubectl rollout status deployment/static-site-deployment --timeout=5m
