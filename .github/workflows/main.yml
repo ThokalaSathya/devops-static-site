@@ -56,6 +56,7 @@ jobs:
       # 7. Deployment: Apply the updated manifest
       - name: Deploy to AKS
         run: kubectl apply -f phase3_iac/deployment.yaml
+      
 
       # 8. Verification: Wait for deployment to stabilize
       - name: Verify Deployment Status
