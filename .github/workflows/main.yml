@@ -46,16 +46,18 @@ jobs:
         with:
           resource-group: ${{ env.RESOURCE_GROUP }}
           cluster-name: ${{ env.CLUSTER_NAME }}
-          
-      # 6. Deployment: Update the YAML to use the new SHA tag - PATH CORRECTION
+
+      # 6. Deployment: Update the YAML to use the new SHA tag - PATH CORRECTION FIX
       - name: Update Kubernetes Deployment File with new image
         run: |
-          # The sed command now uses the deployment.yaml file relative to the root of the repo
-          sed -i "s|ph3containerregistry.azurecr.io/static-site-app:v1|${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|g" deployment.yaml
+          # Re-adding 'phase3_iac/' prefix to match the repository structure
+          sed -i "s|ph3containerregistry.azurecr.io/static-site-app:v1|${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|g" phase3_iac/deployment.yaml
 
-      # 7. Deployment: Apply the updated manifest - PATH CORRECTION
+      # 7. Deployment: Apply the updated manifest - PATH CORRECTION FIX
       - name: Deploy to AKS
-        run: kubectl apply -f deployment.yaml
+        run: kubectl apply -f phase3_iac/deployment.yaml
+          
+     
         
       # 8. Verification: Wait for deployment to stabilize
       - name: Verify Deployment Status
