@@ -1,0 +1,20 @@
+---
+- name: Deploy application to AKS
+  hosts: localhost 
+  connection: local
+  tasks:  # <--- This is indented 2 spaces from the '- name' line above it
+    - name: Apply Kubernetes Deployment Manifest
+      ansible.builtin.command: kubectl apply -f deployment.yaml
+      register: deployment_output
+      
+    - name: Apply Kubernetes Service Manifest
+      ansible.builtin.command: kubectl apply -f service.yaml
+      register: service_output
+
+    - name: Display Deployment Status
+      ansible.builtin.debug:
+        msg: "Deployment status: {{ deployment_output.stdout }}"
+
+    - name: Display Service IP (Manual Step Reminder)
+      ansible.builtin.debug:
+        msg: "Run 'kubectl get svc static-site-service' to get the public IP."
